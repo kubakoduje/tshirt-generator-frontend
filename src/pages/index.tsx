@@ -1,74 +1,116 @@
+import axios from 'axios';
+import Image from 'next/image';
 import * as React from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 
-import Layout from '@/components/layout/Layout';
-import ArrowLink from '@/components/links/ArrowLink';
-import ButtonLink from '@/components/links/ButtonLink';
-import UnderlineLink from '@/components/links/UnderlineLink';
-import UnstyledLink from '@/components/links/UnstyledLink';
-import Seo from '@/components/Seo';
-
-/**
- * SVGR Support
- * Caveat: No React Props Type.
- *
- * You can override the next-env if the type is important to you
- * @see https://stackoverflow.com/questions/68103844/how-to-override-next-js-svg-module-declaration
- */
-import Vercel from '~/svg/Vercel.svg';
-
-// !STARTERCONF -> Select !STARTERCONF and CMD + SHIFT + F
-// Before you begin editing, follow all comments with `STARTERCONF`,
-// to customize the default configuration.
+if (typeof window !== 'undefined') {
+  require('tw-elements');
+}
 
 export default function HomePage() {
+  const [isPending, setIsPending] = useState(false);
+  const [color, setColor] = useState('white');
+  const [view, setView] = useState('front');
+  const [image, setImage] = useState(`white_front`);
+  const [prompt, setPrompt] = useState('');
+  const [generated] = useState<string | undefined>(
+    'https://www.researchgate.net/profile/Joost-Weijer/publication/3920148/figure/fig3/AS:669121255587840@1536542347055/a-original-Lena-image-512x512-b-15-of-the-pixels-of-te-input-image-randomly-chosen_Q640.jpg'
+  );
+
+  useEffect(() => {
+    setImage(`${color}_${view}`);
+  }, [color, view]);
+
+  const handleGenerate = () => {
+    if (!prompt) return alert('You need to type prompt');
+
+    setIsPending(true);
+
+    axios
+      .get(`http://127.0.0.1:8000/generate_image?prompt=${prompt}`)
+      .then((res) => {
+        alert('res in console');
+        // eslint-disable-next-line no-console
+        console.log(res);
+      })
+      .catch((err) => {
+        alert('Something went wrong');
+        setIsPending(false);
+        // eslint-disable-next-line no-console
+        console.log(err);
+      });
+  };
+
   return (
-    <Layout>
-      {/* <Seo templateTitle='Home' /> */}
-      <Seo />
-
-      <main>
-        <section className='bg-white'>
-          <div className='layout flex min-h-screen flex-col items-center justify-center text-center'>
-            <Vercel className='text-5xl' />
-            <h1 className='mt-4'>
-              Next.js + Tailwind CSS + TypeScript Starter
-            </h1>
-            <p className='mt-2 text-sm text-gray-800'>
-              A starter for Next.js, Tailwind CSS, and TypeScript with Absolute
-              Import, Seo, Link component, pre-configured with Husky{' '}
-            </p>
-            <p className='mt-2 text-sm text-gray-700'>
-              <ArrowLink href='https://github.com/theodorusclarence/ts-nextjs-tailwind-starter'>
-                See the repository
-              </ArrowLink>
-            </p>
-
-            <ButtonLink className='mt-6' href='/components' variant='light'>
-              See all components
-            </ButtonLink>
-
-            <UnstyledLink
-              href='https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2Ftheodorusclarence%2Fts-nextjs-tailwind-starter'
-              className='mt-4'
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                width='92'
-                height='32'
-                src='https://vercel.com/button'
-                alt='Deploy with Vercel'
+    <div className='flex min-h-screen w-full items-center justify-center bg-gradient'>
+      <div className='grid max-w-[90rem] grid-cols-3 gap-8 p-12'>
+        <div className='height-full col-span-2 flex items-center justify-center'>
+          <div className='relative'>
+            <Image src={`/images/${image}.png`} alt='' />
+            {generated ? (
+              <Image
+                src={generated}
+                alt=''
+                className='absolute top-1/2 left-1/2 w-[24rem] -translate-y-[18rem] -translate-x-1/2'
               />
-            </UnstyledLink>
-
-            <footer className='absolute bottom-2 text-gray-700'>
-              © {new Date().getFullYear()} By{' '}
-              <UnderlineLink href='https://theodorusclarence.com?ref=tsnextstarter'>
-                Theodorus Clarence
-              </UnderlineLink>
-            </footer>
+            ) : null}
           </div>
-        </section>
-      </main>
-    </Layout>
+        </div>
+        <div className='flex h-auto w-full flex-col gap-4 rounded-2xl bg-white p-8 shadow-2xl'>
+          <div>
+            <label className='text-xs font-bold'>T-shirt color</label>
+            <select
+              value={color}
+              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+                setColor(event.target.value)
+              }
+              className='form-select m-0 block w-full appearance-none rounded border border-solid border-gray-300 bg-white bg-clip-padding bg-no-repeat px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none'
+              aria-label='Default select example'
+            >
+              <option value='white'>White</option>
+              <option value='black'>Black</option>
+            </select>
+          </div>
+          <div>
+            <label className='text-xs font-bold'>Place image on</label>
+            <select
+              value={view}
+              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+                setView(event.target.value)
+              }
+              className='form-select m-0 block w-full appearance-none rounded border border-solid border-gray-300 bg-white bg-clip-padding bg-no-repeat px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none'
+              aria-label='Default select example'
+            >
+              <option value='front'>Front</option>
+              <option value='back'>Back</option>
+            </select>
+          </div>
+          <div>
+            <label className='text-xs font-bold'>Generate image</label>
+            <input
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setPrompt(event.target.value)
+              }
+              value={prompt}
+              type='text'
+              className='form-control m-0 block w-full rounded border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-1.5 text-base font-normal text-gray-700 transition ease-in-out focus:border-blue-600 focus:bg-white focus:text-gray-700 focus:outline-none'
+              placeholder='Type prompt'
+            />
+          </div>
+          <div className='flex justify-center space-x-2'>
+            <button
+              onClick={handleGenerate}
+              type='button'
+              disabled={isPending}
+              className={`inline-block w-full rounded bg-blue-600 px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition duration-150 ease-in-out hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg ${
+                isPending ? 'bg-gray-500' : ''
+              }`}
+            >
+              Generate t-shirt
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

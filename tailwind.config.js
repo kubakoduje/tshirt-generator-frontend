@@ -3,13 +3,17 @@ const { fontFamily } = require('tailwindcss/defaultTheme');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  content: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/tw-elements/dist/js/**/*.js',
+  ],
   theme: {
     extend: {
       fontFamily: {
         primary: ['Inter', ...fontFamily.sans],
       },
       colors: {
+        bgWhite: '#f3f8fa',
         primary: {
           // Customize it on globals.css :root
           50: 'rgb(var(--tw-color-primary-50) / <alpha-value>)',
@@ -50,7 +54,11 @@ module.exports = {
         flicker: 'flicker 3s linear infinite',
         shimmer: 'shimmer 1.3s linear infinite',
       },
+      backgroundImage: {
+        gradient:
+          'linear-gradient(65deg, rgba(226,232,240,1) 50%, rgba(37,99,235,1) 50%)',
+      },
     },
   },
-  plugins: [require('@tailwindcss/forms')],
+  plugins: [require('@tailwindcss/forms'), require('tw-elements/dist/plugin')],
 };

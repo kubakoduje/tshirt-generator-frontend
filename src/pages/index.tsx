@@ -13,9 +13,7 @@ export default function HomePage() {
   const [view, setView] = useState('front');
   const [image, setImage] = useState(`white_front`);
   const [prompt, setPrompt] = useState('');
-  const [generated] = useState<string | undefined>(
-    'https://www.researchgate.net/profile/Joost-Weijer/publication/3920148/figure/fig3/AS:669121255587840@1536542347055/a-original-Lena-image-512x512-b-15-of-the-pixels-of-te-input-image-randomly-chosen_Q640.jpg'
-  );
+  const [generated] = useState<string | undefined>('/images/lena.jpg');
 
   useEffect(() => {
     setImage(`${color}_${view}`);
@@ -46,12 +44,19 @@ export default function HomePage() {
       <div className='grid max-w-[90rem] grid-cols-3 gap-8 p-12'>
         <div className='height-full col-span-2 flex items-center justify-center'>
           <div className='relative'>
-            <Image src={`/images/${image}.png`} alt='' />
+            <Image
+              src={`/images/${image}.png`}
+              alt=''
+              width={1000}
+              height={1000}
+            />
             {generated ? (
               <Image
                 src={generated}
                 alt=''
                 className='absolute top-1/2 left-1/2 w-[24rem] -translate-y-[18rem] -translate-x-1/2'
+                width={512}
+                height={512}
               />
             ) : null}
           </div>
